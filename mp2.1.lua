@@ -18,10 +18,10 @@ function getFile(file_name)
   for i=1,counum do
     prereq[i]=f:read("*line")
     pre[i]={}
-    pre[i][0]=0
+    tttt=-1
     for token in string.gmatch(prereq[i], "[^%s]+") do
-      pre[i][0]=pre[i][0]+1
-      pre[i][pre[i][0]]=tonumber(token)
+      tttt=tttt+1
+      pre[i][tttt]=tonumber(token)
     end  
 
   end  
@@ -48,13 +48,22 @@ function next_season(temp)
   end
 end
 
-function axb(frontier, cn, curcre ,curgold , curseason, ftn, prec)
+function axb(frontier, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, semt, semc)
   --if it reaches the largest credit
   curcre=curcre+cou[frontier[cn]][3]
   if curcre>maxcounum then
-    try next season
+    --try next season
+        print("failed solution: ")
+        for i=1,semt do
+          print("semester ",i)
+          for j=1,semc do
+            print(cursem[i][j])
+          end  
+        end
+        print("total cost:",curgold)
+        print("total credit:",curcre)  
     curseason=next_season(curseason)
-    axb(frontier,cn,0,curgold,curseason)
+    axb(frontier,cn,0,curgold,curseason,ftn,prec,gcn,gc,cursem,semt+1,1)
     return
   end
 
@@ -62,9 +71,18 @@ function axb(frontier, cn, curcre ,curgold , curseason, ftn, prec)
   curgold=curgold+cou[frontier[cn]][curseason]
   if curgold>cost then
     nextseason=next_season(curseason)
+        print("failed solution: ")
+        for i=1,semt do
+          print("semester ",i)
+          for j=1,semc do
+            print(cursem[i][j])
+          end  
+        end
+        print("total cost:",curgold)
+        print("total credit:",curcre) 
     --try next season if it costs less
     if cou[frontier[cn]][curseason]<cou[frontier[cn]][nextseason] then
-      axb(frontier,cn,0,curgold-cou[frontier[cn]][curseason],nextseason)
+      axb(frontier,cn,0,curgold-cou[frontier[cn]][curseason],nextseason,ftn,prec,gcn,gc,cursem,semt+1,1)
     end  
     return
   end  
@@ -78,6 +96,7 @@ function axb(frontier, cn, curcre ,curgold , curseason, ftn, prec)
           prec[i][k]=prec[i][k+1]
         end
         prec[i][0]=prec[i][0]-1
+        --this course is ready to be pick
         if prec[i][0]==0 then
           ftn=ftn+1
           frontier[ftn]=i
@@ -85,9 +104,49 @@ function axb(frontier, cn, curcre ,curgold , curseason, ftn, prec)
       end
     end
   end
-  
-  
+  --push it to current semester
+  semc=semc+1
+  cursem[semt][semc]=frontier[cn]
 
+  --check if we could graduate
+  for i=1,gcn do
+    if gc[i]==frontier[cn] then
+      for k=i,(gcn-1) do
+        gc[k]=gc[k+1]
+      end  
+      gcn=gcn-1
+      if gcn==0 then
+        sn=sn+1
+        print("valid solution: ",sn)
+        for i=1,semt do
+          print("semester ",i)
+          for j=1,semc do
+            print(cursem[i][j])
+          end  
+        end
+        print("total cost:",curgold)
+        print("total credit:",curcre)  
+      end  
+    end
+
+    --abandon this course
+    for i=cn,ftn-1 do
+      frontier[i]=frontier[i+1]
+    end
+    ftn=ftn-1
+    local tempa=""
+    for i=1,ftn do
+      tempa=tempa..tostring(frontier[i]).." "
+    end  
+    print(tempa)
+    --try pick other courses in frontier
+    for i=1,ftn do
+      axb(frontier, i, curcre, curgold , curseason, ftn, prec, gcn, gc,cursem,semt,semc)
+    end
+    
+    
+    return  
+  end    
 end  
 
 
@@ -103,7 +162,12 @@ for i=1,counum do
     tbc[temp]=i
   end  
 end
-
-axb(tbc,1,0,0, 1,temp,pre)
-
+sn=0
+cursem={}
+for i=1,20 do
+  cursem[i]={}
+end
+for i=1,temp do
+  axb(tbc,i,0,0, 1,temp,pre,m,mm,cursem,1,0)
+end
 
