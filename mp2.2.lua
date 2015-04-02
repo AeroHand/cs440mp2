@@ -14,8 +14,9 @@ function getFile(file_name)
   f:close()
 end
 
-function alphabeta(curstate,player,alpha,beta)
-  if finished(curstate) then
+function alphabeta(curstate,player,alpha,beta,depth)
+  if finished(curstate) or (depth>3) then
+
     return eval(curstate)
   end  	
   if player==1 then
@@ -27,7 +28,7 @@ function alphabeta(curstate,player,alpha,beta)
         end
 		for j=1,6 do
 			if curstate[i][j]==0 then
-				temp=alphabeta(move(curstate,i,j,1,2),2,alpha,beta)
+				temp=alphabeta(move(curstate,i,j,1,2),2,alpha,beta,depth+1)
 				if temp>value then
 					value=temp
 			    end
@@ -51,7 +52,7 @@ function alphabeta(curstate,player,alpha,beta)
         end
 		for j=1,6 do
 			if curstate[i][j]==0 then
-				temp=alphabeta(move(curstate,i,j,2,1),1,alpha,beta)
+				temp=alphabeta(move(curstate,i,j,2,1),1,alpha,beta,depth+1)
 				if temp<value then
 					value=temp
 			    end
@@ -69,8 +70,8 @@ function alphabeta(curstate,player,alpha,beta)
   end  
 end
 
-function minmax(curstate,player)
-  if finished(curstate) then
+function minmax(curstate,player,depth)
+  if finished(curstate) or (depth>3) then
     return eval(curstate)
   end  	
   if player==1 then
@@ -78,7 +79,7 @@ function minmax(curstate,player)
   	for i=1,6 do
 		for j=1,6 do
 			if curstate[i][j]==0 then
-				temp=minmax(move(curstate,i,j,1,2),2)
+				temp=minmax(move(curstate,i,j,1,2),2,depth+1)
 				if temp>value then
 					value=temp
 			    end		
@@ -91,7 +92,7 @@ function minmax(curstate,player)
     for i=1,6 do
 		for j=1,6 do
 			if curstate[i][j]==0 then
-				temp=minmax(move(curstate,i,j,2,1),1)
+				temp=minmax(move(curstate,i,j,2,1),1,depth+1)
 				if temp<value then
 					value=temp
 			    end		
@@ -137,7 +138,15 @@ function move(curstate,i,j,player,nextplayer)
           end
         end
       end
+    end
+     for i=1,6,1 do
+  	local temp=""
+  	for j=1,6,1 do
+      temp=temp.." "..tostring(zou[i][j])
     end  
+    print(temp)
+  end   
+  print("")
     return curstate          
 end             	
 function finished(jjj)
@@ -174,6 +183,14 @@ for i=1,6 do
     end
 end
 
---bvalue=minmax(zou,1,1)
-bvalue=alphabeta(zou,1,1,-10000,10000)
+bvalue=minmax(zou,1,1,0)
+--bvalue=alphabeta(zou,1,1,-10000,10000,0)
 print(bvalue)
+
+for i=1,6,1 do
+  	local temp=""
+  	for j=1,6,1 do
+      temp=temp.." "..tostring(zou[i][j])
+    end  
+    print(temp)
+  end  

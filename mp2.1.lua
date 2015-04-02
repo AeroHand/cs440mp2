@@ -128,12 +128,14 @@ function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, se
     end  
 
     --abandon this course
-    for i=cn,ftn-1 do
+    for i=cn,ftn-1,1 do
       dc[i]=frontier[i+1]
     end
     ftn=ftn-1
 
-    
+    for i=1,ftn do
+      frontier[i]=dc[i]
+    end  
     --try pick other courses in frontier
     --print("ftn",ftn)
     for i=1,ftn,1 do
@@ -150,6 +152,8 @@ function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, se
           tempa=tempa..tostring(cursem[i][j]).." "
         end
         print("semester ",i, ":",tempa)
+        print("gold",curgold)
+        print("credit",curcre)
       end    
 
       if dc[i] then
@@ -170,6 +174,7 @@ f="2.1input.txt"
 getFile(f)
 tbc={}
 temp=0
+print("test",counum)
 for i=1,counum do
   if pre[i][0]==0 then
     temp=temp+1
