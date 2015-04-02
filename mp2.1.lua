@@ -48,20 +48,13 @@ function next_season(temp)
   end
 end
 
-function axb(frontier, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, semt, semc)
+function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, semt, semc)
   --if it reaches the largest credit
+  local frontier=ftsz
   curcre=curcre+cou[frontier[cn]][3]
   if curcre>maxcounum then
     --try next season
-        print("failed solution: ")
-        for i=1,semt do
-          print("semester ",i)
-          for j=1,semc do
-            print(cursem[i][j])
-          end  
-        end
-        print("total cost:",curgold)
-        print("total credit:",curcre)  
+       
     curseason=next_season(curseason)
     axb(frontier,cn,0,curgold,curseason,ftn,prec,gcn,gc,cursem,semt+1,1)
     return
@@ -71,15 +64,7 @@ function axb(frontier, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem
   curgold=curgold+cou[frontier[cn]][curseason]
   if curgold>cost then
     nextseason=next_season(curseason)
-        print("failed solution: ")
-        for i=1,semt do
-          print("semester ",i)
-          for j=1,semc do
-            print(cursem[i][j])
-          end  
-        end
-        print("total cost:",curgold)
-        print("total credit:",curcre) 
+         
     --try next season if it costs less
     if cou[frontier[cn]][curseason]<cou[frontier[cn]][nextseason] then
       axb(frontier,cn,0,curgold-cou[frontier[cn]][curseason],nextseason,ftn,prec,gcn,gc,cursem,semt+1,1)
@@ -115,6 +100,13 @@ function axb(frontier, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem
         gc[k]=gc[k+1]
       end  
       gcn=gcn-1
+
+      local tempa=""
+      for i=1,gcn do
+        tempa=tempa..tostring(gc[i]).." "
+      end  
+      print("course left:",tempa)
+
       if gcn==0 then
         sn=sn+1
         print("valid solution: ",sn)
@@ -128,20 +120,42 @@ function axb(frontier, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem
         print("total credit:",curcre)  
       end  
     end
+    
+    --deepcopy
+    dc={}
+    for i=1,cn-1 do
+      dc[i]=frontier[i]
+    end  
 
     --abandon this course
     for i=cn,ftn-1 do
-      frontier[i]=frontier[i+1]
+      dc[i]=frontier[i+1]
     end
     ftn=ftn-1
-    local tempa=""
-    for i=1,ftn do
-      tempa=tempa..tostring(frontier[i]).." "
-    end  
-    print(tempa)
+
+    
     --try pick other courses in frontier
-    for i=1,ftn do
-      axb(frontier, i, curcre, curgold , curseason, ftn, prec, gcn, gc,cursem,semt,semc)
+    --print("ftn",ftn)
+    for i=1,ftn,1 do
+      --print("i",i,ftn)
+      local tempa=""
+      for i=1,ftn do
+        tempa=tempa..tostring(frontier[i]).." "
+      end  
+      print("coud be taken",tempa)
+      print("taking:")
+      for i=1,semt do
+        tempa=""
+        for j=1,semc do
+          tempa=tempa..tostring(cursem[i][j]).." "
+        end
+        print("semester ",i, ":",tempa)
+      end    
+
+      if dc[i] then
+        axb(dc, i, curcre, curgold , curseason, ftn, prec, gcn, gc,cursem,semt,semc)
+      end
+
     end
     
     
@@ -168,6 +182,8 @@ for i=1,20 do
   cursem[i]={}
 end
 for i=1,temp do
-  axb(tbc,i,0,0, 1,temp,pre,m,mm,cursem,1,0)
+  if tbc[i] then
+    axb(tbc,i,0,0, 1,temp,pre,m,mm,cursem,1,0)
+  end  
 end
 
