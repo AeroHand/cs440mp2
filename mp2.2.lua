@@ -14,32 +14,60 @@ function getFile(file_name)
   f:close()
 end
 
-
---[[
-
-function alphabeta(node, depth, alpha, beta, maximizingplayer)
-       if depth = 0 or node is a terminal node
-          return the heuristic value of node
-       if maximizingPlayer
-          v := -∞
-          for each child of node
-              v := max(v, alphabeta(child, depth - 1, α, β, FALSE))
-              α := max(α, v)
-              if β ≤ α
-                  break (* β cut-off *)
-          return v
-      else
-          v := ∞
-          for each child of node
-              v := min(v, alphabeta(child, depth - 1, α, β, TRUE))
-              β := min(β, v)
-              if β ≤ α
-                  break (* α cut-off *)
-          return v   
-    
+function alphabeta(curstate,player,alpha,beta)
+  if finished(curstate) then
+    return eval(curstate)
+  end  	
+  if player==1 then
+  	value=-10000
+  	betabreak=false
+  	for i=1,6 do
+  		if betabreak then
+  			break
+        end
+		for j=1,6 do
+			if curstate[i][j]==0 then
+				temp=alphabeta(move(curstate,i,j,1,2),2,alpha,beta)
+				if temp>value then
+					value=temp
+			    end
+			    if value>alpha then
+			    	alpha=value
+			    end
+			    if beta<=alpha then
+                  betabreak=true
+			      break
+			    end   	
+			end
+	    end
+	end
+    return value
+  else
+    value=10000
+    alphabreak=false
+    for i=1,6 do
+    	if alphabreak then
+  			break
+        end
+		for j=1,6 do
+			if curstate[i][j]==0 then
+				temp=alphabeta(move(curstate,i,j,2,1),1,alpha,beta)
+				if temp<value then
+					value=temp
+			    end
+			    if value<beta then
+			    	beta=value
+			    end
+			    if beta<=alpha then
+			      alphabreak=true
+			      break
+			    end   	
+			end
+	    end
+	end
+    return value
+  end  
 end
-]]
-
 
 function minmax(curstate,player)
   if finished(curstate) then
@@ -146,5 +174,6 @@ for i=1,6 do
     end
 end
 
-bvalue=minmax(zou,1,1)
+--bvalue=minmax(zou,1,1)
+bvalue=alphabeta(zou,1,1,-10000,10000)
 print(bvalue)
