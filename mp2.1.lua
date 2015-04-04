@@ -39,6 +39,20 @@ function getFile(file_name)
   f:close()
 end
 
+function deepcopy(curstate,ftn)
+  step=step+1
+  fz[step]={}
+  for i=1,ftn do
+     fz[step][i]=curstate[i]
+  end  
+
+end
+
+function moveback(curstate,step,lll)
+   for i=1,lll do
+     curstate[i]=fz[step][i]
+  end
+end
 
 function next_season(temp)
   if temp==1 then
@@ -56,7 +70,11 @@ function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, se
     --try next season
        
     curseason=next_season(curseason)
+    deepcopy(frontier,ftn)
+    local stepp=step
+    local ftnn=ftn
     axb(frontier,cn,0,curgold,curseason,ftn,prec,gcn,gc,cursem,semt+1,1)
+    moveback(frontier,stepp,ftnn)
     return
   end
 
@@ -67,7 +85,11 @@ function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, se
          
     --try next season if it costs less
     if cou[frontier[cn]][curseason]<cou[frontier[cn]][nextseason] then
+      deepcopy(frontier,ftn)
+      local stepp=step
+      local ftnn=ftn
       axb(frontier,cn,0,curgold-cou[frontier[cn]][curseason],nextseason,ftn,prec,gcn,gc,cursem,semt+1,1)
+      moveback(frontier,stepp,ftnn)
     end  
     return
   end  
@@ -102,18 +124,18 @@ function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, se
       gcn=gcn-1
 
       local tempa=""
-      for i=1,gcn do
-        tempa=tempa..tostring(gc[i]).." "
+      for j=1,gcn do
+        tempa=tempa..tostring(gc[j]).." "
       end  
       print("course left:",tempa)
 
       if gcn==0 then
         sn=sn+1
         print("valid solution: ",sn)
-        for i=1,semt do
+        for j=1,semt do
           print("semester ",i)
-          for j=1,semc do
-            print(cursem[i][j])
+          for k=1,semc do
+            print(cursem[j][k])
           end  
         end
         print("total cost:",curgold)
@@ -121,25 +143,17 @@ function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, se
       end  
     end
     
-    --deepcopy
-    dc={}
-    for i=1,cn-1 do
-      dc[i]=frontier[i]
-    end  
 
     --abandon this course
     for i=cn,ftn-1,1 do
-      dc[i]=frontier[i+1]
+      frontier[i]=frontier[i+1]
     end
+    frontier[ftn]=nil
     ftn=ftn-1
 
-    for i=1,ftn do
-      frontier[i]=dc[i]
-    end  
-    --try pick other courses in frontier
-    --print("ftn",ftn)
     for i=1,ftn,1 do
       --print("i",i,ftn)
+
       local tempa=""
       for i=1,ftn do
         tempa=tempa..tostring(frontier[i]).." "
@@ -152,13 +166,13 @@ function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, se
           tempa=tempa..tostring(cursem[i][j]).." "
         end
         print("semester ",i, ":",tempa)
-        print("gold",curgold)
-        print("credit",curcre)
       end    
 
-      if dc[i] then
-        axb(dc, i, curcre, curgold , curseason, ftn, prec, gcn, gc,cursem,semt,semc)
-      end
+      deepcopy(frontier,ftn)
+      local stepp=step
+      local ftnn=ftn
+        axb(frontier, i, curcre, curgold , curseason, ftn, prec, gcn, gc,cursem,semt,semc)
+      moveback(frontier,stepp,ftnn)
 
     end
     
@@ -182,10 +196,12 @@ for i=1,counum do
   end  
 end
 sn=0
+fz={}
 cursem={}
 for i=1,20 do
   cursem[i]={}
 end
+step=0
 for i=1,temp do
   if tbc[i] then
     axb(tbc,i,0,0, 1,temp,pre,m,mm,cursem,1,0)
