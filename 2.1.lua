@@ -86,7 +86,125 @@ function noob(n)
     noob(pre[n][i])
   end  
 end
+--choose
+function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, semt, semc)
+  --if it reaches the largest credit
+  local frontier=ftsz
+  curcre=curcre+cou[frontier[cn]][3]
+  if curcre>maxcounum then
+    --try next season
+       
+    curseason=next_season(curseason)
+    deepcopy(frontier,ftn)
+    local stepp=step
+    local ftnn=ftn
+    axb(frontier,cn,0,curgold,curseason,ftn,prec,gcn,gc,cursem,semt+1,1)
+    moveback(frontier,stepp,ftnn)
+    return
+  end
 
+  --if we cant affort that much cost
+  curgold=curgold+cou[frontier[cn]][curseason]
+  if curgold>cost then
+    nextseason=next_season(curseason)
+         
+    --try next season if it costs less
+    if cou[frontier[cn]][curseason]<cou[frontier[cn]][nextseason] then
+      deepcopy(frontier,ftn)
+      local stepp=step
+      local ftnn=ftn
+      axb(frontier,cn,0,curgold-cou[frontier[cn]][curseason],nextseason,ftn,prec,gcn,gc,cursem,semt+1,1)
+      moveback(frontier,stepp,ftnn)
+    end  
+    return
+  end  
+  
+  --choose the course
+  --move it out from frontier, check if any courses could be added into frontier
+  for i=1,counum do
+    for j=1,prec[i][0] do
+      if prec[i][j]==frontier[cn] then
+        for k=j,(prec[i][0]-1) do
+          prec[i][k]=prec[i][k+1]
+        end
+        prec[i][0]=prec[i][0]-1
+        --this course is ready to be pick
+        if prec[i][0]==0 then
+          ftn=ftn+1
+          frontier[ftn]=i
+        end
+      end
+    end
+  end
+  --push it to current semester
+  semc=semc+1
+  cursem[semt][semc]=frontier[cn]
+
+  --check if we could graduate
+  for i=1,gcn do
+    if gc[i]==frontier[cn] then
+      for k=i,(gcn-1) do
+        gc[k]=gc[k+1]
+      end  
+      gcn=gcn-1
+
+      local tempa=""
+      for j=1,gcn do
+        tempa=tempa..tostring(gc[j]).." "
+      end  
+      print("course left:",tempa)
+
+      if gcn==0 then
+        sn=sn+1
+        print("valid solution: ",sn)
+        for j=1,semt do
+          print("semester ",i)
+          for k=1,semc do
+            print(cursem[j][k])
+          end  
+        end
+        print("total cost:",curgold)
+        print("total credit:",curcre)  
+      end  
+    end
+    
+
+    --abandon this course
+    for i=cn,ftn-1,1 do
+      frontier[i]=frontier[i+1]
+    end
+    frontier[ftn]=nil
+    ftn=ftn-1
+
+    for i=1,ftn,1 do
+      --print("i",i,ftn)
+
+      local tempa=""
+      for i=1,ftn do
+        tempa=tempa..tostring(frontier[i]).." "
+      end  
+      print("coud be taken",tempa)
+      print("taking:")
+      for i=1,semt do
+        tempa=""
+        for j=1,semc do
+          tempa=tempa..tostring(cursem[i][j]).." "
+        end
+        print("semester ",i, ":",tempa)
+      end    
+
+      deepcopy(frontier,ftn)
+      local stepp=step
+      local ftnn=ftn
+        axb(frontier, i, curcre, curgold , curseason, ftn, prec, gcn, gc,cursem,semt,semc)
+      moveback(frontier,stepp,ftnn)
+
+    end
+    
+    
+    return  
+  end    
+end
 --main  
 f="2.1input.txt"
 getFile(f)
@@ -109,6 +227,5 @@ for i=1,m do
   noob(mm[i])
 end
 
-for i=1,m do
-  print(mm[i])
-end
+function try(curcourse,n,curcredit,curgold,curseason)
+  --         

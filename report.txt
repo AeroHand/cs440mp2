@@ -1,0 +1,145 @@
+P1:
+
+Formal Specification:
+  variable
+    the courses choosen by MC
+  domain
+    the courses that could be choosen by MC, in my algorithm, they are courses with order 1
+  constraint
+    the credit limit (upper and bottom boundaries)
+    the gold limit
+
+For question 1, I wrote two different programs. 
+The first one is mp2.1.lua, in this programs I just used the normal backtrace recursion to test every possibilities that the student could have when choosing the courses. The basic logic is like this:
+
+function choose(frontier,course number)
+//two parameters, the first one is an array of all the course that could be select now
+//                the sencond one is the course indicator that shows which course will be choose this time 
+{
+	if (check if chosing this course in this semester is valid) then
+	   if (check if we are having a valid solution now) then
+	       print solution and check if the solution is the best solution
+       else
+           change frontier array, move out the current course number and check with choosing this course, is there any other courses with prerequest this course available.
+
+           try choose more courses //call choose() function multiple times with all the course numbers stored inside
+       end
+     end      
+}
+
+It works pretty good, but unfortunatel, it is extremly slow and contains many unnecessary search. So I decide to do more preprocess before backtrack searching and make it 'thinking' more like a human do. (I feel really sorry I submit this late... Lua does not support temporary array in recursion stacks and it took me far more than I expected time to solve this)
+
+In this program, I give each course a evalution order. Those courses without any prerequests are having order 1. Those courses whose prerequest courses are only have order 1 get the order 2. So basically every course is one order higher than the highest order its prerequests have. For example of the given sample: 
+
+0
+0
+1 9
+1 9
+2 6 3
+0
+0
+1 9
+0
+0
+
+
+course	1	order	1
+course	2	order	1
+course	3	order	2
+course	4	order	2
+course	5	order	3
+course	6	order	1
+course	7	order	1
+course	8	order	2
+course	9	order	1
+course	10	order	1
+
+are the order of the courses.
+
+After this I did some other preprocess for the courses the must be taken. This step basically points out all the courses that need to be taken to finish the expected courses MC wants. 
+
+For the example problem, the expected courses become like this (this is not a good example beacause all the courses with prerequests are also wanted by him):
+
+order 1: 1,9
+order 2: 3,4
+
+After that I did backtrace searching again. For this time, the frontier are constrained to the array of order 1. After adding the course to the current semster, I would re-evalute the order of the courses left and re-given the orders. And the result is pretty good. 
+
+result:
+
+P2:
+
+I used normal minmax and alphabeta search for this problem. The evaluation functions evaluates the current points of one certain player. Minmax works obviously slower than alphabeta, but they turn out be the same result. 
+
+Minmax vs minmax
+  Keren:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+
+  Narvik:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+    
+  Sevastopol:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+
+  Smolensk:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+
+  Westerplatte:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+
+Alphabeta vs alphabeta:
+  Keren:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+
+  Narvik:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+    
+  Sevastopol:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+
+  Smolensk:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+
+  Westerplatte:
+    Final state:
+    Score:
+      First Player:
+      Second Player:
+    Average nodes:
+

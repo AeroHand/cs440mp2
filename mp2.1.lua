@@ -62,6 +62,7 @@ function next_season(temp)
   end
 end
 
+--choose
 function axb(ftsz, cn, curcre ,curgold , curseason, ftn, prec,gcn,gc, cursem, semt, semc)
   --if it reaches the largest credit
   local frontier=ftsz
